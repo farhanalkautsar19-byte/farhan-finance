@@ -1,6 +1,6 @@
 {
-  "name": "Aann Finance",
-  "short_name": "Aann Finance",
+  "name": "Daily Finance",
+  "short_name": "Daily Finance"
   "description": "Pencatatan keuangan pribadi offline",
   "start_url": "./index.html",
   "scope": "./",
