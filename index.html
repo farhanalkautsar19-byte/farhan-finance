@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="description" content="Pencatatan keuangan pribadi offline yang simpel.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>Aann Finance</title>
+<style>
+:root{--bg:#f4f7f7;--card:#fff;--ink:#172b2b;--muted:#6b7d7d;--teal:#0f766e;--red:#dc5757;--line:#e5eeee;--shadow:0 8px 28px #153b3510}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:680px;margin:auto;padding:18px 14px 34px}.top{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 18px}.brand{font-weight:800;font-size:21px;letter-spacing:-.5px}.brand span{color:var(--teal)}.date{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow);margin-bottom:14px}
+.balance{background:linear-gradient(135deg,#115e59,#0f766e 60%,#14b8a6);color:white;border:0;padding:21px}.balance small{opacity:.8;font-size:12px}.amount{font-size:clamp(28px,8vw,36px);font-weight:800;letter-spacing:-1px;margin:5px 0 17px;overflow-wrap:anywhere}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#ffffff1c;border-radius:14px;padding:12px}.stat label{font-size:12px;opacity:.85;display:block;margin-bottom:5px}.stat strong{font-size:16px}
+h2{font-size:16px;margin:0 0 14px}.tabs{display:flex;gap:7px;background:#e8f0ef;padding:5px;border-radius:13px;margin-bottom:14px}.tabs button{flex:1;border:0;background:transparent;border-radius:10px;padding:10px;font-weight:700;color:var(--muted);font-size:13px}.tabs button.active{background:white;color:var(--teal);box-shadow:0 2px 8px #0000000b}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}input,select{width:100%;border:1px solid #dce7e6;border-radius:12px;padding:12px;background:#fff;font:inherit;color:var(--ink);min-height:44px;outline-color:var(--teal)}.fields{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field{margin-bottom:11px}.wide{grid-column:1/-1}.submit,.action{width:100%;border:0;border-radius:13px;background:var(--teal);color:white;padding:13px;font-size:15px;font-weight:800;margin-top:3px}.action.secondary{background:#e7f3f1;color:var(--teal)}.action.danger{background:#fff0f0;color:#b34b4b}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.section-head h2{margin-bottom:0}.tiny{font-size:12px;color:var(--muted)}
+.item{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0;padding-bottom:0}.ico{width:40px;height:40px;display:grid;place-items:center;background:#eaf5f3;border-radius:13px;font-size:18px;flex-shrink:0}.item-main{flex:1;min-width:0}.item-title{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.item-sub{font-size:11px;color:var(--muted);margin-top:3px}.money{font-weight:800;font-size:14px;white-space:nowrap}.plus{color:#13866f}.minus{color:var(--red)}.delete{border:0;background:transparent;color:#9aa9a8;font-size:17px;padding:5px 2px}
+.reportrow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.reportrow:last-child{border-bottom:0}.empty{text-align:center;padding:22px 8px;color:var(--muted);font-size:13px}.foot{text-align:center;color:#8b9a99;font-size:11px;margin-top:18px}
+@media(min-width:560px){.wrap{padding-top:28px}.card{padding:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand">Aann <span>Finance</span></div><div class="date" id="today"></div></header>
+<section class="card balance"><small>Saldo sekarang</small><div class="amount" id="balance">Rp0</div><div class="stats"><div class="stat"><label>↑ Pemasukan hari ini</label><strong id="incomeToday">Rp0</strong></div><div class="stat"><label>↓ Pengeluaran hari ini</label><strong id="expenseToday">Rp0</strong></div></div></section>
+<section class="card"><h2>Tambah transaksi</h2><div class="tabs"><button id="incomeTab" class="active" type="button">＋ Pemasukan</button><button id="expenseTab" type="button">− Pengeluaran</button></div>
+<form id="form"><div class="fields"><div class="field wide"><label for="amount">Nominal (Rp)</label><input id="amount" type="number" min="1" step="1" inputmode="numeric" placeholder="Contoh: 25000" required></div><div class="field"><label for="category">Kategori</label><select id="category"></select></div><div class="field"><label for="date">Tanggal</label><input id="date" type="date" required></div><div class="field wide"><label for="note">Catatan (opsional)</label><input id="note" maxlength="70" placeholder="Misal: uang saku / makan siang"></div></div><button class="submit" type="submit" id="submit">Simpan pemasukan</button></form></section>
+<section class="card"><div class="section-head"><h2>Ringkasan laporan</h2><span class="tiny">otomatis</span></div><div class="tabs" style="margin-top:13px"><button id="dailyTab" class="active" type="button">Harian</button><button id="monthlyTab" type="button">Bulanan</button></div><div id="report"></div></section>
+<section class="card"><div class="section-head"><h2>Transaksi terakhir</h2><button id="clear" class="tiny" type="button" style="border:0;background:none;color:#b34b4b">Hapus semua</button></div><div id="transactions"><div class="empty">Belum ada transaksi. Yuk catat yang pertama ✨</div></div></section>
+<section class="card"><h2>Backup data</h2><p class="tiny">Simpan salinan transaksi ke file. Gunakan impor untuk memulihkan data di perangkat ini.</p><div class="fields"><button class="action secondary" id="export" type="button">Ekspor backup</button><label class="action secondary" for="importFile" style="text-align:center;cursor:pointer">Impor backup</label><input id="importFile" type="file" accept="application/json,.json" hidden></div></section>
+<div class="foot" id="status">Offline-ready · Data tersimpan di perangkat ini</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const localDate=d=>{const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
+const now=new Date(), todayStr=localDate(now);$('date').value=todayStr;$('today').textContent=now.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const fmt=n=>'Rp'+Math.round(n).toLocaleString('id-ID');let type='income',period='daily';
+const categories={income:['Uang saku','Beasiswa','Gaji / kerja','Hadiah','Lainnya'],expense:['Makan & minum','Transportasi','Kuliah','Belanja','Pulsa / internet','Hiburan','Tabungan','Lainnya']};
+let transactions=[];try{transactions=JSON.parse(localStorage.getItem('aannFinanceTransactions')||'[]')}catch(e){transactions=[]}
+function save(){localStorage.setItem('aannFinanceTransactions',JSON.stringify(transactions))}
+function setType(t){type=t;$('incomeTab').classList.toggle('active',t==='income');$('expenseTab').classList.toggle('active',t==='expense');$('submit').textContent=t==='income'?'Simpan pemasukan':'Simpan pengeluaran';$('category').innerHTML=categories[t].map(c=>`<option>${c}</option>`).join('')}
+function sums(list){return list.reduce((a,t)=>{a[t.type]+=t.amount;return a},{income:0,expense:0})}
+function render(){const s=sums(transactions.filter(t=>t.date===todayStr)),all=sums(transactions);$('balance').textContent=fmt(all.income-all.expense);$('incomeToday').textContent=fmt(s.income);$('expenseToday').textContent=fmt(s.expense);renderReport();renderTransactions()}
+function renderReport(){let list,title;if(period==='daily'){list=transactions.filter(t=>t.date===todayStr);title='Hari ini'}else{list=transactions.filter(t=>t.date.startsWith(todayStr.slice(0,7)));title=now.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}const s=sums(list);$('report').innerHTML=`<div class="reportrow"><span>Periode</span><strong>${title}</strong></div><div class="reportrow"><span>Total pemasukan</span><strong class="plus">${fmt(s.income)}</strong></div><div class="reportrow"><span>Total pengeluaran</span><strong class="minus">${fmt(s.expense)}</strong></div><div class="reportrow"><span>Selisih</span><strong>${fmt(s.income-s.expense)}</strong></div>`}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderTransactions(){const list=[...transactions].sort((a,b)=>(b.date+b.created).localeCompare(a.date+a.created)).slice(0,50);if(!list.length){$('transactions').innerHTML='<div class="empty">Belum ada transaksi. Yuk catat yang pertama ✨</div>';return}$('transactions').innerHTML=list.map(t=>`<div class="item"><div class="ico">${t.type==='income'?'↙':'↗'}</div><div class="item-main"><div class="item-title">${esc(t.note||t.category)}</div><div class="item-sub">${esc(t.category)} · ${new Date(t.date+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'})}</div></div><div class="money ${t.type==='income'?'plus':'minus'}">${t.type==='income'?'+':'−'}${fmt(t.amount)}</div><button class="delete" aria-label="Hapus transaksi" onclick="removeTx('${t.id}')">×</button></div>`).join('')}
+window.removeTx=id=>{transactions=transactions.filter(t=>t.id!==id);save();render()};
+$('incomeTab').onclick=()=>setType('income');$('expenseTab').onclick=()=>setType('expense');
+$('dailyTab').onclick=()=>{period='daily';$('dailyTab').classList.add('active');$('monthlyTab').classList.remove('active');renderReport()};
+$('monthlyTab').onclick=()=>{period='monthly';$('monthlyTab').classList.add('active');$('dailyTab').classList.remove('active');renderReport()};
+$('form').addEventListener('submit',e=>{e.preventDefault();const amount=Number($('amount').value);if(!Number.isFinite(amount)||amount<=0)return;transactions.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),type,amount:Math.round(amount),category:$('category').value,date:$('date').value,note:$('note').value.trim(),created:Date.now()});save();$('amount').value='';$('note').value='';$('date').value=todayStr;render();$('amount').focus()});
+$('clear').onclick=()=>{if(transactions.length&&confirm('Yakin hapus semua transaksi? Tindakan ini tidak bisa dibatalkan.')){transactions=[];save();render()}};
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify({app:'Aann Finance',version:1,transactions},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='aann-finance-backup-'+todayStr+'.json';a.click();URL.revokeObjectURL(a.href)};
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const incoming=Array.isArray(data)?data:data.transactions;if(!Array.isArray(incoming))throw Error('Format tidak cocok');if(confirm('Impor backup akan mengganti catatan yang sekarang. Lanjutkan?')){transactions=incoming;save();render();alert('Backup berhasil dipulihkan.')}}catch(err){alert('File backup tidak valid.')}e.target.value=''};
+setType('income');render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').then(()=>{$('status').textContent='Siap dipasang · Bisa digunakan offline setelah instalasi'}).catch(()=>{});
+</script>
+</body></html>
